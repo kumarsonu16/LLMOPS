@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MultiDocChat - AI Document Assistant</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Minimal inline tweaks; most styles live in styles.css */
+  </style>
+  <script>
+    const $ = (sel) => document.querySelector(sel);
+    let sessionId = localStorage.getItem('mdc_session_id') || '';
+
+    async function uploadFiles(evt) {
+      evt.preventDefault();
+      const input = $('#file-input');
+      const files = input.files;
+      if (!files || files.length === 0) {
+        toast('Please choose at least one file');
+        return;
+      }
+      toggleIndexing(true);
+      try {
+        const fd = new FormData();
+        for (const f of files) fd.append('files', f);
+        const res = await fetch('/upload', { method: 'POST', body: fd });
+        if (!res.ok) throw new Error((await res.json()).detail || 'Upload failed');
+        const data = await res.json();
+        sessionId = data.session_id;
+        localStorage.setItem('mdc_session_id', sessionId);
+        $('#chat').style.display = 'block';
+        $('#session-badge').style.display = 'flex';
+        toast('Indexing complete. You can chat now.');
+      } catch (e) {
+        console.error(e);
+        toast('Indexing failed. Try re-uploading.');
+      } finally {
+        toggleIndexing(false);
+      }
+    }
+
+    async function sendMessage() {
+      const input = $('#message-input');
+      const text = input.value.trim();
+      if (!sessionId) { toast('Please upload documents first.'); return; }
+      if (!text) { return; }
+      appendMessage('user', text);
+      input.value = '';
+      toggleThinking(true);
+      try {
+        const res = await fetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: sessionId, message: text })
+        });
+        if (!res.ok) throw new Error((await res.json()).detail || 'Chat failed');
+        const data = await res.json();
+        appendMessage('assistant', data.answer);
+      } catch (e) {
+        console.error(e);
+        toast('Thinking failed. Try again.');
+      } finally {
+        toggleThinking(false);
+      }
+    }
+
+    function appendMessage(role, text) {
+      const container = $('#messages');
+      // Remove welcome message if it exists
+      const welcome = container.querySelector('.welcome-message');
+      if (welcome) welcome.remove();
+      
+      // Create message structure
+      const message = document.createElement('div');
+      message.className = 'message ' + role;
+      
+      // Create avatar
+      const avatar = document.createElement('div');
+      avatar.className = 'message-avatar';
+      avatar.textContent = role === 'user' ? 'U' : 'AI';
+      
+      // Create bubble
+      const bubble = document.createElement('div');
+      bubble.className = 'message-bubble';
+      bubble.textContent = text;
+      
+      // Assemble
+      message.appendChild(avatar);
+      message.appendChild(bubble);
+      container.appendChild(message);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function toggleIndexing(on) {
+      $('#upload-btn').disabled = on;
+      $('#indexing').style.display = on ? 'inline-block' : 'none';
+    }
+
+    function toggleThinking(on) {
+      $('#send-btn').disabled = on;
+      $('#thinking').style.display = on ? 'inline-block' : 'none';
+    }
+
+    function toast(msg) {
+      const el = $('#toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 2500);
+    }
+
+    function clearChat() {
+      const container = $('#messages');
+      container.innerHTML = `
+        <div class="welcome-message">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            <path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <h4>Ready to help!</h4>
+          <p>Ask me anything about your documents</p>
+        </div>
+      `;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (sessionId) {
+        $('#chat').style.display = 'block';
+        $('#session-badge').style.display = 'flex';
+      }
+      $('#upload-form').addEventListener('submit', uploadFiles);
+      $('#send-btn').addEventListener('click', sendMessage);
+      $('#message-input').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+      });
+      const drop = $('#dropzone');
+      drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('dragover'); });
+      drop.addEventListener('dragleave', () => drop.classList.remove('dragover'));
+      drop.addEventListener('drop', (e) => {
+        e.preventDefault();
+        drop.classList.remove('dragover');
+        $('#file-input').files = e.dataTransfer.files;
+      });
+    });
+  </script>
+  <meta name="color-scheme" content="light dark" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="header-content">
+        <div class="logo">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="32" height="32" rx="8" fill="url(#gradient)"/>
+            <path d="M16 8L9 12V20L16 24L23 20V12L16 8Z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+            <circle cx="16" cy="16" r="3" fill="white"/>
+            <defs>
+              <linearGradient id="gradient" x1="0" y1="0" x2="32" y2="32">
+                <stop offset="0%" stop-color="#667eea"/>
+                <stop offset="100%" stop-color="#764ba2"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div>
+            <h1>MultiDocChat</h1>
+            <p class="subtitle">AI-Powered Document Assistant</p>
+          </div>
+        </div>
+        <div class="session-badge" id="session-badge" style="display: none;">
+          <span class="status-dot"></span>
+          <span>Session Active</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section id="uploader">
+        <div class="upload-card">
+          <div class="card-header">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h2>Upload Your Documents</h2>
+            <p>Support for PDF, DOCX, TXT files</p>
+          </div>
+          <form id="upload-form">
+            <div id="dropzone">
+              <div class="dropzone-content">
+                <svg class="upload-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M7 18C7 18 6 18 6 17C6 16 7 13 11 13C15 13 16 16 16 17C16 18 15 18 15 18H7Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="11" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M15 5C15.6667 5.33333 16 6 16 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  <path d="M12 3L12 15M12 3L9 6M12 3L15 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <p class="drop-text"><strong>Drag and drop files here</strong></p>
+                <p class="drop-subtext">or</p>
+                <label class="btn btn-outline">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Browse files
+                  <input id="file-input" type="file" name="files" multiple hidden />
+                </label>
+                <p class="file-hint">Maximum file size: 10MB per file</p>
+              </div>
+            </div>
+            <button id="upload-btn" class="btn btn-primary" type="submit">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>Upload & Index</span>
+            </button>
+            <div id="indexing" class="loading-state" style="display:none;">
+              <div class="spinner"></div>
+              <span>Processing your documents...</span>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section id="chat" style="display:none;">
+        <div class="chat-container">
+          <div class="chat-header">
+            <div>
+              <h3>Chat with Your Documents</h3>
+              <p class="chat-subtitle">Ask questions and get AI-powered answers</p>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="clearChat()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Clear Chat
+            </button>
+          </div>
+          <div id="messages" class="messages">
+            <div class="welcome-message">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                <path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <h4>Ready to help!</h4>
+              <p>Ask me anything about your documents</p>
+            </div>
+          </div>
+          <div class="composer">
+            <div class="composer-inner">
+              <textarea id="message-input" rows="1" placeholder="Ask about your documents..." maxlength="2000"></textarea>
+              <button id="send-btn" class="btn btn-icon" title="Send message">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+            <div id="thinking" class="loading-state" style="display:none;">
+              <div class="spinner"></div>
+              <span>Thinking...</span>
+            </div>
+            <div class="composer-footer">
+              <span class="hint">Press Enter to send, Shift+Enter for new line</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="toast" class="toast"></div>
+  </div>
+</body>
+</html>

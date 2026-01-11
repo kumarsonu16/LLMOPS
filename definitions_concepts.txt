@@ -1,0 +1,45 @@
+UV - is basically a package manager which is use to install dependencies and manage packages. You can run python files or projects
+Similar to PIP - yes it does the same thing but it does it very faster.
+How does - it basically uses RUST in the backend which uses C code that's why so fast and install dependecies in a fraction 1/10th of the time of the pip takes 
+
+pyproject.toml -  Manage the high level dependecies but uv.lock manage the low level dependecies of the application (Nested dependecies as well)
+
+
+Data -> all data related stuff will be stored like, uploaded files, process data or files, This is very useful to store in S3.
+templates -> Frontend code
+Static :  CSS code
+Notebook: for experiment code like, rag, evaluations and more
+Test: unit test to check the functionality
+multi_doc_chat: Actualt GenAI projects
+    1. config: all configuration related codes
+    2. expception: For expception handling
+    3. logger: To logg the application logs, it will automatically configure the aws cloudwatch
+    4. Prompts: All Prompts will be here
+    5. utill: All utills functions will be here
+    6. src: All the components will be here, like data ingestion, retreival and more.
+
+
+Study this projects step by step:
+
+1. notebook/RAG.ipynb
+2. logger: multi_doc_chat/logger/cutom_logger.py
+3. expception: multi_doc_chat/exception/custom_exception.py
+4. config: multi_doc_chat/config/config.yaml
+5. utills: 
+    a) multi_doc_chat/utils/config_loader.py -> will load config.yaml and convert to a dictionary
+    b) multi_doc_chat/utils/model_loader.py -> will load the model, embedding.
+    c) multi_doc_chat/utils/file_io.py -> Will created session Id , Directories, file upload  and more.
+    d) multi_doc_chat/utils/document_ops.py -> Load the docs and get the contents of the doc.
+
+6. multi_doc_chat/src/document_ingestion/data_ingestion.py
+7. multi_doc_chat/src/document_chat/retrieval.py
+8. notebook/evaluations.ipynb
+9. Confident AI for RAG Evaluations
+
+
+
+If you want to add a new package then flow below steps:
+
+1. Addd package in requirements.txt
+2. uv add - r requirements.txt
+3. uv sync -> will sync package to uv.lock
