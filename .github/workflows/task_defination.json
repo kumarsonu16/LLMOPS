@@ -24,14 +24,41 @@
           {
             "name": "ENV",
             "value": "production"
+          },
+          {
+            "name": "PORT",
+            "value": "8080"
           }
         ],
         "secrets": [
           {
-            "name": "llmops_prod",
-            "valueFrom": "arn:aws:secretsmanager:us-east-1:341252054363:secret:llmops_prod-3fs6sC"
+            "name": "GROQ_API_KEY",
+            "valueFrom": "arn:aws:secretsmanager:us-east-1:341252054363:secret:llmops_prod-3fs6sC:GROQ_API_KEY::"
+          },
+          {
+            "name": "GOOGLE_API_KEY",
+            "valueFrom": "arn:aws:secretsmanager:us-east-1:341252054363:secret:llmops_prod-3fs6sC:GOOGLE_API_KEY::"
+          },
+          {
+            "name": "LLM_PROVIDER",
+            "valueFrom": "arn:aws:secretsmanager:us-east-1:341252054363:secret:llmops_prod-3fs6sC:LLM_PROVIDER::"
+          },
+          {
+            "name": "LANGCHAIN_PROJECT",
+            "valueFrom": "arn:aws:secretsmanager:us-east-1:341252054363:secret:llmops_prod-3fs6sC:LANGCHAIN_PROJECT::"
+          },
+          {
+            "name": "LANGCHAIN_TRACING_V2",
+            "valueFrom": "arn:aws:secretsmanager:us-east-1:341252054363:secret:llmops_prod-3fs6sC:LANGCHAIN_TRACING_V2::"
+          },
+          {
+            "name": "LANGCHAIN_ENDPOINT",
+            "valueFrom": "arn:aws:secretsmanager:us-east-1:341252054363:secret:llmops_prod-3fs6sC:LANGCHAIN_ENDPOINT::"
+          },
+          {
+            "name": "LANGCHAIN_API_KEY",
+            "valueFrom": "arn:aws:secretsmanager:us-east-1:341252054363:secret:llmops_prod-3fs6sC:LANGCHAIN_API_KEY::"
           }
-  
         ],
         "logConfiguration": {
           "logDriver": "awslogs",
