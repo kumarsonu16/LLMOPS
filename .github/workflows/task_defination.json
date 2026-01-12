@@ -5,6 +5,9 @@
     "requiresCompatibilities": ["FARGATE"],
     "cpu": "1024",
     "memory": "8192",
+    "ephemeralStorage": {
+        "sizeInGiB": 50
+    },
     "containerDefinitions": [
       {
         "name": "llmops-container",
