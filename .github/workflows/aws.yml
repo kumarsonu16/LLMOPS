@@ -11,7 +11,7 @@ on:
 env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY: llmops
-  ECS_SERVICE: llmops-service
+  ECS_SERVICE: llmops-service-2
   ECS_CLUSTER: llmopscluster
   ECS_TASK_DEFINITION: .github/workflows/task_defination.json
   CONTAINER_NAME: llmops-container
