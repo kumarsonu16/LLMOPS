@@ -1,45 +1,119 @@
-UV - is basically a package manager which is use to install dependencies and manage packages. You can run python files or projects
-Similar to PIP - yes it does the same thing but it does it very faster.
-How does - it basically uses RUST in the backend which uses C code that's why so fast and install dependecies in a fraction 1/10th of the time of the pip takes 
 
-pyproject.toml -  Manage the high level dependecies but uv.lock manage the low level dependecies of the application (Nested dependecies as well)
+## UV
+
+**UV** is a modern package manager used to install dependencies and manage Python packages. It can also be used to run Python files or entire projects.
+
+* **Similar to pip?**
+  Yes, it serves the same purpose as `pip`, but it is significantly faster.
+
+* **Why is it faster?**
+  UV is implemented in **Rust**, which leverages low-level, highly optimized code (including C under the hood). This allows UV to install dependencies roughly **10× faster than pip**.
+
+---
+
+## Dependency Management Files
+
+* **`pyproject.toml`**
+  Manages high-level (direct) dependencies of the application.
+
+* **`uv.lock`**
+  Locks and manages low-level dependencies, including **nested/transitive dependencies**, ensuring consistent and reproducible builds.
+
+---
+
+## Project Structure Overview
+
+* **`data/`**
+  Stores all data-related files such as uploaded files, processed data, or generated artifacts.
+  This directory is ideal for integration with **AWS S3**.
+
+* **`templates/`**
+  Contains frontend templates.
+
+* **`static/`**
+  Holds static assets such as **CSS files**.
+
+* **`notebook/`**
+  Used for experimentation, including **RAG**, evaluations, and exploratory work.
+
+* **`tests/`**
+  Contains unit tests to validate application functionality.
+
+* **`multi_doc_chat/`** (Main GenAI application)
+
+  1. **`config/`** – All configuration-related files
+  2. **`exception/`** – Custom exception handling
+  3. **`logger/`** – Application logging (automatically configured for **AWS CloudWatch**)
+  4. **`prompts/`** – All prompt templates
+  5. **`utils/`** – Utility/helper functions
+  6. **`src/`** – Core application components such as data ingestion, retrieval, and processing logic
+
+---
+
+## Recommended Study Order
+
+Follow this sequence to understand the project step by step:
+
+1. `notebook/RAG.ipynb`
+
+2. Logger: `multi_doc_chat/logger/custom_logger.py`
+
+3. Exception handling: `multi_doc_chat/exception/custom_exception.py`
+
+4. Configuration: `multi_doc_chat/config/config.yaml`
+
+5. Utilities:
+
+   * `multi_doc_chat/utils/config_loader.py`
+     → Loads `config.yaml` and converts it into a dictionary
+   * `multi_doc_chat/utils/model_loader.py`
+     → Loads the model and embeddings
+   * `multi_doc_chat/utils/file_io.py`
+     → Creates session IDs, directories, handles file uploads, and more
+   * `multi_doc_chat/utils/document_ops.py`
+     → Loads documents and extracts their content
+
+6. Data ingestion:
+   `multi_doc_chat/src/document_ingestion/data_ingestion.py`
+
+7. Retrieval logic:
+   `multi_doc_chat/src/document_chat/retrieval.py`
+
+8. Evaluation notebook:
+   `notebook/evaluations.ipynb`
+
+9. **Confident AI** for RAG evaluations
+
+---
+
+## Adding a New Package
+
+To add a new dependency, follow these steps:
+
+1. Add the package to `requirements.txt`
+2. Run:
+
+   ```bash
+   uv add -r requirements.txt
+   ```
+3. Sync dependencies:
+
+   ```bash
+   uv sync
+   ```
+
+   This will update and lock the dependencies in `uv.lock`.
 
 
-Data -> all data related stuff will be stored like, uploaded files, process data or files, This is very useful to store in S3.
-templates -> Frontend code
-Static :  CSS code
-Notebook: for experiment code like, rag, evaluations and more
-Test: unit test to check the functionality
-multi_doc_chat: Actualt GenAI projects
-    1. config: all configuration related codes
-    2. expception: For expception handling
-    3. logger: To logg the application logs, it will automatically configure the aws cloudwatch
-    4. Prompts: All Prompts will be here
-    5. utill: All utills functions will be here
-    6. src: All the components will be here, like data ingestion, retreival and more.
+JenKins steps
 
-
-Study this projects step by step:
-
-1. notebook/RAG.ipynb
-2. logger: multi_doc_chat/logger/cutom_logger.py
-3. expception: multi_doc_chat/exception/custom_exception.py
-4. config: multi_doc_chat/config/config.yaml
-5. utills: 
-    a) multi_doc_chat/utils/config_loader.py -> will load config.yaml and convert to a dictionary
-    b) multi_doc_chat/utils/model_loader.py -> will load the model, embedding.
-    c) multi_doc_chat/utils/file_io.py -> Will created session Id , Directories, file upload  and more.
-    d) multi_doc_chat/utils/document_ops.py -> Load the docs and get the contents of the doc.
-
-6. multi_doc_chat/src/document_ingestion/data_ingestion.py
-7. multi_doc_chat/src/document_chat/retrieval.py
-8. notebook/evaluations.ipynb
-9. Confident AI for RAG Evaluations
-
-
-
-If you want to add a new package then flow below steps:
-
-1. Addd package in requirements.txt
-2. uv add - r requirements.txt
-3. uv sync -> will sync package to uv.lock
+1. Run jenkins on local uing docker compose
+```bash 
+docker compose -f docker-compose.jenkins.yml up -d
+```
+2. Assess jenkins in browser, localhost:8083
+3. Run below command to Get Password 
+    docker exec jenkins-local cat /var/jenkins_home/secrets/initialAdminPassword
+4. Setup first admin
+    username: sonu
+    pwd: sonu123
