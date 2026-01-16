@@ -2,7 +2,9 @@ FROM jenkins/jenkins:lts
 
 USER root
 
-# Install Python 3 and dependencies
+# -----------------------------
+# System dependencies
+# -----------------------------
 RUN apt-get update && \
     apt-get install -y \
     python3 \
@@ -13,24 +15,38 @@ RUN apt-get update && \
     ca-certificates \
     lsb-release \
     gnupg \
+    docker.io \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Azure CLI
+# Ensure python command exists
+RUN ln -sf /usr/bin/python3 /usr/bin/python
+
+# -----------------------------
+# Environment hardening for CI
+# -----------------------------
+ENV UV_HTTP_TIMEOUT=300
+ENV PIP_DEFAULT_TIMEOUT=300
+ENV TMPDIR=/var/tmp
+
+RUN mkdir -p /var/tmp && chmod 1777 /var/tmp
+
+# -----------------------------
+# Azure CLI
+# -----------------------------
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
-# Install Docker CLI (for building images in Jenkins)
-RUN apt-get update && \
-    apt-get install -y docker.io && \
-    rm -rf /var/lib/apt/lists/*
+# -----------------------------
+# Jenkins plugins
+# -----------------------------
+RUN jenkins-plugin-cli --plugins \
+    git \
+    workflow-aggregator \
+    junit \
+    github-branch-source
 
-# Create symbolic link for python command
-RUN ln -s /usr/bin/python3 /usr/bin/python
-
-# Pre-install essential Jenkins plugins for this pipeline
-RUN jenkins-plugin-cli --plugins "git workflow-aggregator junit github-branch-source"
-
-# Configure git to allow all directories (fixes dubious ownership errors in Jenkins)
+# -----------------------------
+# Git safe directory fix
+# -----------------------------
 RUN git config --system --add safe.directory '*'
 
-# Switch back to jenkins user
 USER jenkins

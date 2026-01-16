@@ -1,6 +1,10 @@
+# Only for jenkins deployment
+# 🔒 Force CPU-only Torch (NO triton)
+torch==2.2.2+cpu
+--extra-index-url https://download.pytorch.org/whl/cpu
+
 python-dotenv==1.1.1
 structlog
-
 langchain==0.3.27
 langchain-community==0.3.27
 langchain-core==0.3.72
