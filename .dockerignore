@@ -1,0 +1,103 @@
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments (HUGE SAVINGS!)
+.venv/
+venv/
+env/
+ENV/
+.env.local
+
+# Package manager files (not needed in container)
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+notebook/
+*.ipynb
+
+# Environment variables (use secrets management instead)
+.env
+.env.*
+
+# Git (not needed in container)
+.git/
+.gitignore
+.gitattributes
+.github/
+
+# Logs (HUGE SAVINGS!)
+logs/
+*.log
+log/
+
+# FAISS indices (may be regenerated or too large)
+faiss_index/
+
+# Data files (should be mounted or fetched from S3/blob storage)
+data/
+chat_history/
+
+# Documentation and screenshots (not needed in runtime)
+*.md
+README*
+CHANGELOG*
+docs/
+*.excalidraw
+images/
+screenshots/
+CloudServiceScreenshots/
+AureCloudDocs/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing files (not needed in production)
+tests/
+test_*.py
+*_test.py
+conftest.py
+.pytest_cache/
+.coverage
+htmlcov/
+
+# CI/CD files (not needed in container)
+.github/
+.gitlab-ci.yml
+azure-pipelines.yml
+Jenkinsfile
+scripts/
+
+# Docker files themselves
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Python package manager lock files (already installed)
+uv.lock
+poetry.lock
+Pipfile.lock
+
+# Misc
+*.bak
+*.tmp
+*.temp
+temp/
+tmp/
