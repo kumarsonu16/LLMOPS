@@ -414,20 +414,6 @@ az containerapp delete \
 # Cost after stopping: ~$11/month (just storage and ACRs)
 ```
 
-### Resume Services
-
-```bash
-# Resume everything
-./resume-services.sh
-```
-
-### Complete Cleanup (Zero Charges)
-
-⚠️ **WARNING:** This deletes everything including Jenkins configuration and data!
-
-```bash
-./complete-deep-cleanup.sh
-```
 
 ## 🔧 Maintenance Tasks
 
@@ -549,15 +535,6 @@ az container show \
 
 # Build and push image
 ./build-and-push-docker-image.sh
-
-# Resume services
-./resume-services.sh
-
-# Cleanup app only
-./cleanup-app-deployment.sh
-
-# Cleanup everything
-./complete-deep-cleanup.sh
 
 # Get Jenkins URL
 az container show -g llmops-jenkins-rg -n jenkins-llmops --query ipAddress.fqdn -o tsv
