@@ -54,12 +54,13 @@ pipeline {
     }
     
     triggers {
-        // Poll SCM approximately every 2 minutes (no GitHub webhook/tunnel needed)
-        pollSCM('H/2 * * * *')
+        // GitHub webhook trigger (configured in Jenkins job settings)
+        // Triggers automatically when code is pushed or PR is merged to azure-deploy branch
+        // pollSCM('H/2 * * * *')
     }
     
-    // Note: Using SCM polling instead of GitHub webhooks. Branch filtering
-    // is done in the pipeline job configuration (e.g., */azure-deploy for Azure branch).
+    // Note: Using GitHub webhooks for instant triggering. Branch filtering
+    // is done in the pipeline job configuration (*/azure-deploy for Azure branch).
     
     stages {
         stage('Checkout') {
