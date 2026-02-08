@@ -8,7 +8,7 @@ def _project_root() -> Path:
 
 def load_config(config_path: str | None = None) -> dict:
     """
-    Resolve config path reliably irrespective of CWD.
+    Resolve config path  reliably irrespective of CWD.
     Priority: explicit arg > CONFIG_PATH env > <project_root>/config/config.yaml
     """
     env_path = os.getenv("CONFIG_PATH")
