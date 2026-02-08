@@ -18,6 +18,7 @@ DNS_NAME="jenkins-llmops-${RANDOM}"
 # Colors for output
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
+RED='\033[0;31m'
 NC='\033[0m'
 
 echo -e "${BLUE}=== Azure Jenkins Deployment Script ===${NC}\n"
@@ -66,7 +67,19 @@ ACR_PASSWORD=$(az acr credential show --name $ACR_NAME --query passwords[0].valu
 # Step 7: Build and Push Image
 echo -e "${GREEN}Step 7: Building and Pushing Jenkins Image...${NC}"
 az acr login --name $ACR_NAME
-docker build --platform linux/amd64 -f Dockerfile.jenkins -t $ACR_NAME.azurecr.io/jenkins-python:latest .
+
+# Get the script directory and project root
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+echo -e "Building from: $PROJECT_ROOT"
+
+# Build using relative path to Dockerfile from project root
+docker build --platform linux/amd64 \
+  -f "$PROJECT_ROOT/Dockerfile.jenkins" \
+  -t $ACR_NAME.azurecr.io/jenkins-python:latest \
+  "$PROJECT_ROOT"
+
 docker push $ACR_NAME.azurecr.io/jenkins-python:latest
 
 # Step 8: Deploy Container

@@ -1,0 +1,42 @@
+name: Build and Push to Azure Container Registry
+
+on:
+  push:
+    branches: [ azure-deploy ]  # Only triggers on azure-deploy branch
+  workflow_dispatch:  # Manual trigger from GitHub UI
+
+env:
+  ACR_NAME: llmopsappacr
+  IMAGE_NAME: llmops-app
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📦 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 🔐 Login to Azure Container Registry
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ env.ACR_NAME }}.azurecr.io
+        username: ${{ secrets.ACR_USERNAME }}
+        password: ${{ secrets.ACR_PASSWORD }}
+    
+    - name: 🐳 Build and push Docker image
+      run: |
+        docker build \
+          --platform linux/amd64 \
+          -t ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+          -t ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest \
+          -f Dockerfile.optimized \
+          .
+        
+        docker push ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+        docker push ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest
+    
+    - name: ✅ Build complete
+      run: |
+        echo "🎉 Image pushed successfully!"
+        echo "Image: ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest"

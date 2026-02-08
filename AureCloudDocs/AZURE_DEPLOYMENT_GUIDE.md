@@ -63,9 +63,9 @@ This will create Jenkins on Azure with Python and Azure CLI pre-installed.
 
 ```bash
 # Run the Jenkins deployment script
- 1. chmod +x azure-deploy-jenkins.sh
+ 1. chmod +x scripts/azure/azure-deploy-jenkins.sh
 
- 2. ./azure-deploy-jenkins.sh
+ 2. ./scripts/azure/azure-deploy-jenkins.sh
 ```
 
 **What this creates:**
@@ -111,6 +111,10 @@ Jenkins needs credentials to deploy to Azure:
 
 ```bash
 # Create service principal
+
+# Get your subscription ID
+az account show --query id -o tsv
+
 az ad sp create-for-rbac \
   --name "jenkins-llmops-sp" \
   --role Contributor \
@@ -124,8 +128,7 @@ az ad sp create-for-rbac \
 #   "tenant": "xxx"
 # }
 
-# Get your subscription ID
-az account show --query id -o tsv
+
 ```
 
 **3.5. Add Credentials to Jenkins**
@@ -155,7 +158,7 @@ This creates the infrastructure for your application (separate from Jenkins):
 ```bash
 1. chmod +x scripts/azure/setup-app-infrastructure.sh
 
-2. ./setup-app-infrastructure.sh
+2. ./scripts/azure/setup-app-infrastructure.sh
 ```
 
 **What this creates:**
@@ -197,10 +200,10 @@ Go back to Jenkins credentials page and add two more credentials:
 # Build and push with latest tag
 1. chmod +x build-and-push-docker-image.sh
 
-2. ./build-and-push-docker-image.sh
+2. ./scripts/azure/build-and-push-docker-image.sh
 
 # Or with a specific version tag
-2. ./build-and-push-docker-image.sh v1.0.0
+2. ./scripts/azure/build-and-push-docker-image.sh v1.0.0
 ```
 
 **Expected output:**
@@ -224,6 +227,7 @@ Now run your Jenkins pipeline to deploy.
 **General Section:**
 - ✅ Check "GitHub project"
 - Project url: `https://github.com/YOUR-USERNAME/YOUR-REPO/`
+- https://github.com/kumarsonu16/LLMOPS.git
 
 **Build Triggers:**
 - ✅ Check "GitHub hook trigger for GITScm polling"
