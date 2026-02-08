@@ -1,0 +1,76 @@
+# Recommended .gitignore additions for AWS deployment security
+
+# ===================================================
+# AWS Credentials & Secrets (NEVER COMMIT THESE!)
+# ===================================================
+*.pem
+*.key
+.aws/credentials
+.aws/config
+aws-credentials.txt
+
+# Environment files with secrets
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
+# AWS CLI output files
+credentials
+config
+
+# Terraform state files (if using Terraform)
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# ===================================================
+# Local Development Files (Safe but not needed in repo)
+# ===================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Log files
+*.log
+logs/
+
+# Backup files
+*.bak
+*.backup
+
+# ===================================================
+# Already Secure (Current AWS_INTERVIEW_GUIDE.md)
+# ===================================================
+# ✅ AWS_INTERVIEW_GUIDE.md - Safe to commit (all secrets redacted)
+# ✅ AWS_DEPLOYMENT_GUIDE.md - Safe to commit (no real credentials)
+# ✅ screenshots/ - Safe to commit (no sensitive data visible)
+
+# ===================================================
+# Files to Review Before Committing
+# ===================================================
+# - Any new YAML files (check for hardcoded credentials)
+# - Any shell scripts (check for embedded secrets)
+# - Any config files (verify no API keys present)
+
+# ===================================================
+# Quick Security Check Before Every Commit
+# ===================================================
+# Run these commands before git push:
+#
+# 1. Check for AWS account IDs:
+#    grep -r "^[0-9]\{12\}$" .
+#
+# 2. Check for access keys:
+#    grep -r "AKIA[A-Z0-9]\{16\}" .
+#
+# 3. Check for secret patterns:
+#    grep -ri "secret.*=\|password.*=\|key.*=" . | grep -v ".gitignore"
+#
+# 4. Check what will be committed:
+#    git status
+#    git diff --cached
