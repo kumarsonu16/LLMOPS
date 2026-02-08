@@ -53,14 +53,14 @@ pipeline {
         // to allow test-only runs without requiring credentials
     }
     
-    triggers {
-        // GitHub webhook trigger (configured in Jenkins job settings)
-        // Triggers automatically when code is pushed or PR is merged to azure-deploy branch
-        // pollSCM('H/2 * * * *')
-    }
+    // triggers {
+    //     // GitHub webhook trigger is configured in Jenkins job settings (Build Triggers)
+    //     // Not needed in Jenkinsfile - triggers block must contain actual trigger definitions
+    //     // For polling: pollSCM('H/2 * * * *')
+    // }
     
-    // Note: Using GitHub webhooks for instant triggering. Branch filtering
-    // is done in the pipeline job configuration (*/azure-deploy for Azure branch).
+    // Note: GitHub webhook trigger is configured in Jenkins job settings (not here).
+    // Branch filtering is done in the pipeline job configuration (*/azure-deploy for Azure branch).
     
     stages {
         stage('Checkout') {
